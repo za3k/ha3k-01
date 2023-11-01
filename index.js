@@ -12,7 +12,6 @@
 // [ ] Score words as you go
 // [ ] Add a cumulative score
 
-
 // [ ] Allow pressing backspace
 
 // [ ] Animate dice movement
@@ -137,7 +136,7 @@ class Game {
     }
     rollDice() {
         this.roundScore = 0;
-        this.words = [[], [], [], [], [], [], [], [], [], [], []]; // Length 0-10
+        this.words = [[], [], [], [], [], [], [], [], [], [], [], []]; // Length 0-11
         this.pool.clear();
         this.spelled.clear();
         this.roundStart = time();
@@ -167,7 +166,15 @@ class Game {
                 this.reportProblem("You have already submitted that word.");
                 return false;
             }
-            if (word + "s" == existing || word == existing + "s") {
+        }
+        for (var existing of this.words[word.length-1]) {
+            if (word == existing + "s") {
+                this.reportProblem("You can't submit both a singular and +s plural of the same word.");
+                return false;
+            }
+        }
+        for (var existing of this.words[word.length+1]) {
+            if (word + "s" == existing) {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
                 return false;
             }

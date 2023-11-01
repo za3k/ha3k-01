@@ -130,6 +130,9 @@ body {
 .word-column:nth-child(6) { min-width: 8ex; }
 .word-column:nth-child(7) { min-width: 9ex; }
 .word-column:nth-child(8) { min-width: 10ex; }
+.word-column:nth-child(n+2) {
+    border-left: 1px dotted lightgrey;
+}
 .word-column {
     margin: 2px;
     height: 8em;
