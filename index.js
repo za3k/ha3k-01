@@ -7,11 +7,11 @@
 // [x] Add "next round" button after the previous round
 // [x] Add completed words to scoring area
 // [X] Allow cancelling words somehow (press enter?)
+// [x] Add a word list
 
 // [ ] Score words as you go
 // [ ] Add a cumulative score
 
-// [ ] Add a word list
 
 // [ ] Allow pressing backspace
 
@@ -172,7 +172,10 @@ class Game {
                 return false;
             }
         }
-        // TODO: Check if word is in wordlist.txt
+        if (!dictionary[word]) {
+            this.reportProblem("That word was not found in our dictionary.");
+            return false;
+        }
         return true;
     }
     trySpell(word) {
