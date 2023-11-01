@@ -1,0 +1,85 @@
+<html>
+<head>
+    <link rel="stylesheet" href="index.css">
+    <title>Perquackey</title>
+    <script src="jquery-3.7.1.min.js"></script>
+    <script src="index.js"></script>
+</head>
+<body>
+
+<div class="top">
+
+    <div class="score">
+        <h3>Score</h3>
+        <div class="word-columns">
+            <div class="word-column" data-length="3"><div class="title">three</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="4"><div class="title">four</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="5"><div class="title">five</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="6"><div class="title">six</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="7"><div class="title">seven</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="8"><div class="title">eight</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="9"><div class="title">nine</div><div class="words"></div><div class="word-score">0</div></div>
+            <div class="word-column" data-length="10"><div class="title">ten</div><div class="words"></div><div class="word-score">0</div></div>
+        </div>
+        <div class="bonuses"></div>
+        <div class="round-score"></div>
+        <div class="game-score"></div>
+        <div class="vulnerable" style="visibility:hidden;">VULNERABLE</div>
+    </div>
+    <div class="board">
+        <div class="timer">Time: <span class="time">3:00</span></div>
+        <div class="dice">
+            <div class="die">P</div>
+            <div class="die">E</div>
+            <div class="die">R</div>
+            <div class="die">Q</div>
+            <div class="die">U</div>
+            <div class="die">A</div>
+            <div class="die">C</div>
+            <div class="die">K</div>
+            <div class="die">E</div>
+            <div class="die">Y</div>
+        </div>
+        <div class="problem" style="display: none;"></div>
+        <div class="spelling" style="display: none;"></div>
+        <div class="victory" style="display: none;"></div>
+        <div class="button roll-dice">Roll Dice</div>
+    </div>
+</div>
+
+<div class="rules">
+<h3>Rules</h3>
+
+Perquackey is a game for 2 or more players. Open one copy of this tab for each player. Each player takes a turn, then the next player plays, and so on.
+
+You get 3 minutes to make words.
+
+Words must be:
+    At least 3 letters
+    No proper nouns
+    For "s" plurals: you can use "dog" or "dogs", but not both.
+
+After the round ends, you will receive a score based on how many words of each length you spelled.
+
+Once you reach 2000 points, you become "vulnerable". You can no longer form 3-letter words. Also, if you score under 500 in a round, you receive in penalty. But, you get three extra red dice each round.
+
+The first player to 5000 points wins.
+
+<h3>How to play</h3>
+<h3>Click "Roll dice". Then type as many words as you can in the time limit, using the keyboard. You can only score 5 letters of each word length.</h3>
+</div>
+
+<div class="credits">
+<h3>Credits</h3>
+<ul>
+    <li>The physical version of Perquackey was published in 1956 by Hollingsworth Bros and Lakeside Toys.
+    <li>This game uses the Scrabble word list provided by <a href="https://github.com/redbo/scrabble">redbo</a>.
+</ul>
+</div>
+
+<div class="footer">
+This game was written on Nov 1 of 2023, as part of <a href="https://za3k.com/hackaday">Hack-A-Day</a>. The author is Zachary "za3k" Vance. Source code is available on github, or by clicking "View Source" in your browser.
+</div>
+
+</body>
+</html>
