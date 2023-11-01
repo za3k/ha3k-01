@@ -1,4 +1,3 @@
-// TODO
 // [x] Make the display look nice
 // [x] Allow rolling dice
 // [x] Allow typing words
@@ -8,11 +7,10 @@
 // [x] Add completed words to scoring area
 // [X] Allow cancelling words somehow (press enter?)
 // [x] Add a word list
+// [x] Allow pressing backspace
 
 // [ ] Score words as you go
 // [ ] Add a cumulative score
-
-// [ ] Allow pressing backspace
 
 // [ ] Animate dice movement
 
@@ -98,9 +96,9 @@ class DiceCollection {
         }
         return false;
     }
-    move(letter, toCollection, toEnd) {
+    move(letter, toCollection, fromEnd, toEnd) {
         if (!this.has(letter)) throw "No die found, expected to find that letter.";
-        const [die, i] = this.has(letter, toEnd);
+        const [die, i] = this.has(letter, fromEnd);
         this.dice.splice(i, 1);
 
         if (toEnd) {
@@ -111,10 +109,16 @@ class DiceCollection {
             toCollection.div.prepend(die); // TODO: Animate
         }
     }
-    moveAll(toCollection, toEnd) {
+    moveAll(toCollection, fromEnd, toEnd) {
         while (this.dice.length > 0) {
-            this.move(this.dice[this.dice.length-1].letter, toCollection, toEnd);
+            this.move(this.dice[fromEnd ? this.dice.length-1 : 0].letter, toCollection, fromEnd, toEnd);
         }
+    }
+    isEmpty() {
+        return this.dice.length == 0;
+    }
+    last() {
+        return this.dice[this.dice.length-1].letter;
     }
     clear() {
         this.dice = [];
@@ -190,7 +194,7 @@ class Game {
         for (var i=0; i<this.spelled.dice.length; i++) word.push(this.spelled.dice[i].letter);
         word = word.join("");
 
-        this.spelled.moveAll(this.pool, 0); // return all letters to start
+        this.spelled.moveAll(this.pool, 1, 0); // return all letters to start
 
         if (this.validWord(word)) {
             this.words[word.length].push(word);
@@ -222,9 +226,14 @@ class Game {
         if (letter=="ENTER") {
             this.clearProblem();
             this.trySpell();
+        } else if (letter=="BACKSPACE" || letter=="DELETE") {
+            this.clearProblem();
+            if (this.spelled.isEmpty()) return;
+            const lastLetter = this.spelled.last();
+            this.spelled.move(lastLetter, this.pool, 1, 0); // Undo!
         } else if (this.pool.has(letter)) {
             this.clearProblem();
-            this.pool.move(letter, this.spelled, 1); // To the end
+            this.pool.move(letter, this.spelled, 0, 1); // From the start of the pool, to the end of the spelled word
         } else {
             this.reportProblem(`No letter ${letter}`);
         }
