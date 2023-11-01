@@ -2,10 +2,10 @@
 // [x] Make the display look nice
 // [x] Allow rolling dice
 // [x] Allow typing words
-// [ ] Allow submitting words
+// [x] Allow submitting words
+// [x] Add a timer
+// [x] Add "next round" button after the previous round
 // [ ] Add completed words to scoring area
-// [ ] Add a timer
-// [ ] Add "next round" button after the previous round
 
 // [ ] Score words as you go
 // [ ] Add a cumulative score
@@ -25,24 +25,24 @@ const DICE = [
     // Black dice
     "AAAEEE",
     "AAAEEE",
-    "PINFUT",
-    "BITKRH",
-    "MUGRIS",
-    "FRSHIU",
-    "RODNLT",
-    "JZEQXV",
-    "POCMOW",
-    "LOBYOW",
+    "BHIKRT",
+    "BLOOWY",
+    "CMOOPW",
+    "DLNORT",
+    "EJQVXZ",
+    "FHIRSU",
+    "FINPTU",
+    "GIMRSU",
     // Red dice 
-    "SWVSYQ",
-    "CJKFGM",
-    "BLHPFN",
+    "BFHLNP",
+    "CFGJKM",
+    "SSQVWY",
 ];
 const NUM_DICE = [10, 13]; // Non-vulnerable, vulnerable
 const MIN_LENGTH = [3, 4]; // Non-vulnerable, vulnerable
 const MAX_WORDS = 5; // Max of any one length
 const MAX_WORD_LENGTH = 10;
-const TIMER_MAX = 180;
+const ROUND_TIME = 180;
 
 const SCORES = {
     3: [0, 60, 70, 80, 90, 100],
@@ -67,10 +67,58 @@ const SCORE_BONUS = [
 const VULNERABLE = 2000;
 const VICTORY = 5000;
 
+function timeFormat(t) {
+    const minutes = Math.floor(t / 60);
+    const seconds = Math.ceil(t - minutes*60);
+    return `${minutes.toString().padStart(1, '0')}:${seconds.toString().padStart(2, '0')}`
+}
+function time() { return new Date().getTime() / 1000; }
+
+class DiceCollection {
+    constructor(div) {
+        this.dice = [];
+        this.div = div;
+    }
+    add(letter, extraClasses) {
+        const div = $(`<div class="die">${letter}</div>`)
+        for (var class_ of extraClasses) div.addClass(class_);
+        div.letter = letter;
+        this.div.append(div);
+        this.dice.push(div);
+        return div;
+    }
+    has(letter) {
+        for (var die of this.dice) {
+            if (die.letter == letter) return die;
+        }
+        return false;
+    }
+    move(letter, toCollection) {
+        const die = this.has(letter);
+        if (!die) throw "No die found, expected to find that letter.";
+        const i = this.dice.indexOf(die);
+        this.dice.splice(i, 1);
+        toCollection.dice.push(die);
+        toCollection.div.append(die); // TODO: Animate
+    }
+    moveAll(toCollection) {
+        while (this.dice.length > 0) {
+            this.move(this.dice[0].letter, toCollection);
+        }
+    }
+    clear() {
+        this.dice = [];
+        this.div.empty();
+    }
+}
+
 class Game {
     constructor() {
         this.vulnerable = 0;
         this.gameScore = 0;
+        this.active = 0;
+        this.pool = new DiceCollection($(".dice"));
+        this.spelled = new DiceCollection($(".spelling"));
     }
     rollDie(i) {
         const side = Math.floor(Math.random()*6); // 0-5
@@ -79,63 +127,61 @@ class Game {
     rollDice() {
         this.roundScore = 0;
         this.words = [[], [], [], [], [], [], [], [], [], [], []]; // Length 0-10
-        this.pool = [];
-        this.spelled = [];
+        this.pool.clear();
+        this.spelled.clear();
+        this.roundStart = time();
+        this.clearProblem();
+        this.active = 1;
 
-        $(".dice").empty();
         for (var i=0; i<NUM_DICE[this.vulnerable]; i++) {
-            const roll = this.rollDie(i);
-            const die = this.makeDie(roll, i>=NUM_DICE[0]);
-            this.pool.push(die);
-            this.addDie(die, $(".dice"));
+            this.pool.add(this.rollDie(i), i>=NUM_DICE[0] ? ["vulnerable"] : []);
         }
 
-        window.setTimeout(TIMER_MAX*1000, this.roundOver.bind(this));
-        this.updater = window.setInterval(100, this.updateTimer.bind(this));
+        window.setTimeout(this.roundOver.bind(this), ROUND_TIME*1000);
+        this.updater = window.setInterval(this.updateTimer.bind(this), 100);
         $(".roll-dice").hide();
         $(".spelling").show();
     }
-    makeDie(letter, vulnerable) {
-        const div = $(`<div class="die">${letter}</div>`)
-        div.toggleClass("vulnerable", vulnerable);
-        div.letter = letter;
-        return div;
-    }
-    addDie(die, toDiv) {
-        toDiv.append(die);
-    }
-    moveDie(die, toDiv) {
-        toDiv.append(die);
-    }
     validWord(word) {
-        // Check if word is submitted already
-        // Check if word is in wordlist.txt
-        // Check for plurals
-        // Check word length
-        // Check if there are 5 words of the given length already
+        if (word.length < MIN_LENGTH[this.vulnerable] || word.length > MAX_WORD_LENGTH) {
+            this.reportProblem(`${word.length}-letter words are not allowed`);
+            return false;
+        }
+        if (this.words[word.length] >= MAX_WORDS) {
+            this.reportProblem(`You have found as many ${word.length}-letter words as needed.`);
+        }
+        for (var existing of this.words[word.length]) {
+            if (existing === word) {
+                this.reportProblem("You have already submitted that word.");
+            }
+            if (word + "s" == existing || word == existing + "s") {
+                this.reportProblem("You can't submit both a singular and +s plural of the same word.");
+            }
+        }
+        // TODO: Check if word is in wordlist.txt
         return true;
     }
     trySpell(word) {
         var word = [];
-        for (var i=0; i<this.spelled.length; i++) word.push(this.spelled.letter);
+        for (var i=0; i<this.spelled.dice.length; i++) word.push(this.spelled.dice[i].letter);
         word = word.join("");
 
-        this.returnLetters();
+        this.spelled.moveAll(this.pool); // return all letters
 
-        if (this.validWord(word)) this.spell(word);
-    }
-    spell(word) {
-        this.words[word.length].push(word);
-        this.updateScore();
+        if (this.validWord(word)) {
+            this.words[word.length].push(word);
+            this.updateScore();
+        }
     }
     updateTimer() {
-        // TODO
+        this.timeLeft = Math.max(this.roundStart + ROUND_TIME - time(), 0);
+        $(".time").text(timeFormat(this.timeLeft))
     }
     updateScore(roundOver) {
         // TODO
         if (roundOver) {
             this.gameScore += this.roundScore;
-            this.vulnerable = this.gameScore >= VULNERABLE;
+            this.vulnerable = 0+(this.gameScore >= VULNERABLE);
             $(".vulnerable").toggle(this.vulnerable);
             if (this.gameScore >= VICTORY) this.victory();
         }
@@ -144,42 +190,33 @@ class Game {
         $(".roll-dice").hide();
         $(".victory").show();
     } 
-    poolRemove(die) {
-        const i = this.pool.indexOf(die);
-        this.pool.splice(i, 1);
-    }
-    poolHas(letter) {
-        for (var die of this.pool) {
-            if (die.letter == letter) return die;
-        }
-        return false;
-    }
     letterPressed(letter) {
         var die;
+        if (!this.active) return;
         if (letter=="ENTER") {
             this.clearProblem();
             this.trySpell();
-        } else if (die = this.poolHas(letter)) {
+        } else if (this.pool.has(letter)) {
             this.clearProblem();
-            this.poolRemove(die);
-            this.moveDie(die, $(".spelling"));
-            this.spelled.push(die);
+            this.pool.move(letter, this.spelled);
         } else {
-            this.reportProblem("No letter " + letter);
+            this.reportProblem(`No letter ${letter}`);
         }
     }
     roundOver() {
-        window.cancelInterval(this.updater); this.updater = null;
+        window.clearInterval(this.updater); this.updater = null;
+        this.clearProblem();
         $(".roll-dice").show();
         $(".spelling").hide();
+        $(".time").text("--");
         this.updateScore(1);
+        this.active = 0;
     }
     reportProblem(problem) {
-        $(".problem").show();
-        $(".problem").text(problem);
+        $(".problem").text(problem).show();
     }
     clearProblem() {
-        $(".problem").hide();
+        $(".problem").text("").hide();
     }
 }
 
