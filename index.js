@@ -8,9 +8,8 @@
 // [X] Allow cancelling words somehow (press enter?)
 // [x] Add a word list
 // [x] Allow pressing backspace
-
-// [ ] Score words as you go
-// [ ] Add a cumulative score
+// [x] Score words as you go
+// [x] Add a cumulative score
 
 // [ ] Animate dice movement
 
@@ -18,6 +17,7 @@
 
 // [ ] Add sound effects: word correct, word incorrect, all 5 words done, time out, time almost out, game start (dice rolling)
 // [ ] Visually indicate "complete" columns and that 3-letter words are forbidden when vulnerable
+// [ ] Fix plurals
 
 const DICE = [
     // Black dice
@@ -62,7 +62,7 @@ const SCORE_BONUS = [
     0, 0,
 ];
 
-const VULNERABLE = 2000;
+const VULNERABLE = 1; //2000;
 const VICTORY = 5000;
 
 KEY_BLACKLIST = ["META", "SHIFT", "CONTROL", "ALT", " ", "'", "ARROWUP", "ARROWDOWN", "ARROWLEFT", "ARROWRIGHT"];
@@ -133,28 +133,39 @@ class Game {
         this.active = 0;
         this.pool = new DiceCollection($(".dice"));
         this.spelled = new DiceCollection($(".spelling"));
+        this.roundNumber = 0;
     }
     rollDie(i) {
         const side = Math.floor(Math.random()*6); // 0-5
         return DICE[i][side];
     }
-    rollDice() {
+    reset() {
         this.roundScore = 0;
         this.words = [[], [], [], [], [], [], [], [], [], [], [], []]; // Length 0-11
         this.pool.clear();
         this.spelled.clear();
-        this.roundStart = time();
         this.clearProblem();
+        $(".roll-dice").hide();
+        $(".spelling").show();
+        $(".bonus").hide();
+        $(".done").removeClass("done");
+        $(".word").remove();
+    }
+    rollDice() {
+        this.reset();
+        this.roundStart = time();
         this.active = 1;
+        $(".round").text(++this.roundNumber);
 
         for (var i=0; i<NUM_DICE[this.vulnerable]; i++) {
             this.pool.add(this.rollDie(i), i>=NUM_DICE[0] ? ["vulnerable"] : []);
         }
 
+        $(`.word-columns .word-column:nth-child(1)`).toggleClass("vulnerable", !!this.vulnerable);
+
         window.setTimeout(this.roundOver.bind(this), ROUND_TIME*1000);
         this.updater = window.setInterval(this.updateTimer.bind(this), 100);
-        $(".roll-dice").hide();
-        $(".spelling").show();
+        this.updateScore()
     }
     validWord(word) {
         if (word.length < MIN_LENGTH[this.vulnerable] || word.length > MAX_WORD_LENGTH) {
@@ -172,13 +183,13 @@ class Game {
             }
         }
         for (var existing of this.words[word.length-1]) {
-            if (word == existing + "s") {
+            if (word === existing + "s") {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
                 return false;
             }
         }
         for (var existing of this.words[word.length+1]) {
-            if (word + "s" == existing) {
+            if (word + "s" === existing) {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
                 return false;
             }
@@ -189,17 +200,21 @@ class Game {
         }
         return true;
     }
+    returnLetters() {
+        this.spelled.moveAll(this.pool, 1, 0); // return all letters to start
+    }
     trySpell(word) {
         var word = [];
         for (var i=0; i<this.spelled.dice.length; i++) word.push(this.spelled.dice[i].letter);
         word = word.join("");
 
-        this.spelled.moveAll(this.pool, 1, 0); // return all letters to start
+        this.returnLetters();
 
         if (this.validWord(word)) {
             this.words[word.length].push(word);
-            $(`.word-columns .word-column:nth-child(${word.length-2})`).append($(`<div class="word">${word}</div>`)).toggleClass("done", this.words[word.length].length == MAX_WORDS);
-            // If it has 5 children, highlight it in a special color
+            $(`.word-columns .word-column:nth-child(${word.length-2})`)
+                .append($(`<div class="word">${word}</div>`))
+                .toggleClass("done", this.words[word.length].length == MAX_WORDS); // If it has 5 children, highlight it in a special color
             this.updateScore();
         }
     }
@@ -208,11 +223,28 @@ class Game {
         $(".time").text(timeFormat(this.timeLeft))
     }
     updateScore(roundOver) {
-        // TODO
+        let score = 0;
+        this.roundScore = 0;
+        for (var l=MIN_LENGTH[this.vulnerable]; l<=MAX_WORD_LENGTH; l++) {
+            const wordScore = SCORES[l][this.words[l].length];
+            $(`.word-columns .word-column:nth-child(${l-2}) .word-score`).text(wordScore);
+            this.roundScore += wordScore;
+            if (this.words[l-1].length == MAX_WORDS && this.words[l].length == MAX_WORDS) {
+                $(`.words-${l-1}-${l}`).show();
+                this.roundScore += SCORE_BONUS[l];
+            }
+        }
+        if (!!this.vulnerable) {
+            $(".under-500").toggle(this.roundScore < 500);
+            if (this.roundScore < 500) this.roundScore -= 500;
+        }
+        $(".round-score").text(this.roundScore);
+
         if (roundOver) {
             this.gameScore += this.roundScore;
             this.vulnerable = 0+(this.gameScore >= VULNERABLE);
-            $(".vulnerable").toggle(this.vulnerable);
+            $(".vulnerable-label").toggle(this.vulnerable);
+            $(".game-score").text(this.gameScore).toggleClass("vulnerable", !!this.vulnerable);
             if (this.gameScore >= VICTORY) this.victory();
         }
     }
@@ -241,6 +273,7 @@ class Game {
     roundOver() {
         window.clearInterval(this.updater); this.updater = null;
         this.clearProblem();
+        this.returnLetters();
         $(".roll-dice").show();
         $(".spelling").hide();
         $(".time").text("--");

@@ -23,10 +23,17 @@
             <div class="word-column" data-length="10"><div class="title">ten</div><div class="words"></div><div class="word-score">0</div></div>
         </div>
         <div class="bonuses">
+            <div class="bonus words-3-4" style="display: none;">+300 points for having all 3-letter and 4-letter words</div>
+            <div class="bonus words-4-5" style="display: none;">+500 points for having all 4-letter and 5-letter words</div>
+            <div class="bonus words-5-6" style="display: none;">+600 points for having all 5-letter and 6-letter words</div>
+            <div class="bonus words-6-7" style="display: none;">+1200 points for having all 6-letter and 7-letter words</div>
+            <div class="bonus words-7-8" style="display: none;">+1850 points for having all 7-letter and 8-letter words</div>
+            <div class="bonus under-500" style="display: none;">You must reach 500 points when vulnerable, or lose -500 points</div>
         </div>
-        <div class="round-score"></div>
-        <div class="game-score"></div>
-        <div class="vulnerable" style="visibility:hidden;">VULNERABLE</div>
+        <div>Round total: <div class="round-score">--</div></div>
+        <div>Game total: <div class="game-score">--</div></div>
+        <div class="vulnerable-label" style="visibility:hidden;">VULNERABLE</div>
+        <div>Round: <div class="round">--</div></div>
     </div>
     <div class="board">
         <div class="timer">Time: <span class="time">--</span></div>
@@ -49,12 +56,10 @@
     </div>
 </div>
 
-<div class="rules">
 <h3>How to play</h3>
-<h3>Click "Roll dice". Then type as many words as you can in the time limit, using the keyboard. You can only score 5 letters of each word length.</h3>
-
+<h3>Click "Roll dice". Then type as many words as you can in the time limit, using the keyboard. You only need a maximum of 5 words of each length.</h3>
+<div class="rules">
 <h3>Rules</h3>
-
 Perquackey is a game for 2 or more players. Open one copy of this tab for each player. Each player takes a turn, then the next player plays, and so on.
 
 You get 3 minutes to make words.

@@ -4,6 +4,7 @@ body {
 
 .rules {
     font-family: monospace;
+    white-space: pre-wrap;
 }
 
 .board {
@@ -30,13 +31,12 @@ body {
 }
 
 .die {
-    border-radius: 5px;
-    margin: 1rem;
+    margin: 0.5rem;
     padding: 0.5rem;
 
     background-color: #e7e7e7;
-    width: 5rem;
-    height: 5rem;
+    width: 4.5rem;
+    height: 4.5rem;
     object-fit: contain;
 
     box-shadow:
@@ -122,6 +122,7 @@ body {
 .word-column.done {
     color: lightgrey;
 }
+.word-column:nth-child(1).vulnerable { visibility: hidden; }
 .word-column:nth-child(1) { min-width: 3ex; }
 .word-column:nth-child(2) { min-width: 4ex; }
 .word-column:nth-child(3) { min-width: 5ex; }
@@ -146,9 +147,24 @@ body {
     text-decoration: underline;
 }
 
-.vulnerable {
+.vulnerable-label {
     color: lightred;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.round-score {
+    font-size: 24pt;
+    display: inline-block;
+}
+.game-score {
+    display: inline-block;
+}
+.game-score.vulnerable {
+    color: darkred;
+}
+
+.round {
+    display: inline-block;
 }
