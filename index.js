@@ -1,7 +1,7 @@
 // TODO
 // [x] Make the display look nice
 // [x] Allow rolling dice
-// [ ] Allow typing words
+// [x] Allow typing words
 // [ ] Allow submitting words
 // [ ] Add completed words to scoring area
 // [ ] Add a timer
@@ -105,7 +105,7 @@ class Game {
         toDiv.append(die);
     }
     moveDie(die, toDiv) {
-
+        toDiv.append(die);
     }
     validWord(word) {
         // Check if word is submitted already
@@ -143,13 +143,27 @@ class Game {
     victory() {
         $(".roll-dice").hide();
         $(".victory").show();
+    } 
+    poolRemove(die) {
+        const i = this.pool.indexOf(die);
+        this.pool.splice(i, 1);
+    }
+    poolHas(letter) {
+        for (var die of this.pool) {
+            if (die.letter == letter) return die;
+        }
+        return false;
     }
     letterPressed(letter) {
-        if (letter=="\n") {
+        var die;
+        if (letter=="ENTER") {
+            this.clearProblem();
             this.trySpell();
-        } else if (this.poolHas(letter)) {
-            this.poolRemove(letter);
-            this.spelled.push(letter);
+        } else if (die = this.poolHas(letter)) {
+            this.clearProblem();
+            this.poolRemove(die);
+            this.moveDie(die, $(".spelling"));
+            this.spelled.push(die);
         } else {
             this.reportProblem("No letter " + letter);
         }
@@ -160,9 +174,21 @@ class Game {
         $(".spelling").hide();
         this.updateScore(1);
     }
+    reportProblem(problem) {
+        $(".problem").show();
+        $(".problem").text(problem);
+    }
+    clearProblem() {
+        $(".problem").hide();
+    }
 }
 
 $(document).ready((ev) => {
     game = new Game();
     $(".roll-dice").on("click", game.rollDice.bind(game));
+
+    document.addEventListener('keypress', (event) => {
+        var name = event.key;
+        game.letterPressed(event.key.toUpperCase());
+    }, false);
 });
