@@ -116,6 +116,12 @@ body {
     display: flex;
     width: fit-content;
 }
+.word-column.forbidden {
+    color: lightpink;
+}
+.word-column.done {
+    color: lightgrey;
+}
 .word-column:nth-child(1) { min-width: 3ex; }
 .word-column:nth-child(2) { min-width: 4ex; }
 .word-column:nth-child(3) { min-width: 5ex; }

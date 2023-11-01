@@ -5,14 +5,14 @@
 // [x] Allow submitting words
 // [x] Add a timer
 // [x] Add "next round" button after the previous round
-// [ ] Add completed words to scoring area
+// [x] Add completed words to scoring area
+// [X] Allow cancelling words somehow (press enter?)
 
 // [ ] Score words as you go
 // [ ] Add a cumulative score
 
 // [ ] Add a word list
 
-// [ ] Allow cancelling words somehow (press enter?)
 // [ ] Allow pressing backspace
 
 // [ ] Animate dice movement
@@ -20,6 +20,7 @@
 // [ ] Add mouse/touchpad support
 
 // [ ] Add sound effects: word correct, word incorrect, all 5 words done, time out, time almost out, game start (dice rolling)
+// [ ] Visually indicate "complete" columns and that 3-letter words are forbidden when vulnerable
 
 const DICE = [
     // Black dice
@@ -67,6 +68,8 @@ const SCORE_BONUS = [
 const VULNERABLE = 2000;
 const VICTORY = 5000;
 
+KEY_BLACKLIST = ["META", "SHIFT", "CONTROL", "ALT", " ", "'", "ARROWUP", "ARROWDOWN", "ARROWLEFT", "ARROWRIGHT"];
+
 function timeFormat(t) {
     const minutes = Math.floor(t / 60);
     const seconds = Math.ceil(t - minutes*60);
@@ -87,23 +90,31 @@ class DiceCollection {
         this.dice.push(div);
         return div;
     }
-    has(letter) {
-        for (var die of this.dice) {
-            if (die.letter == letter) return die;
+    has(letter, last) {
+        for (var die of (last ? this.dice.slice().reverse() : this.dice)) {
+            if (die.letter == letter) {
+                const i = last ? this.dice.lastIndexOf(die) : this.dice.indexOf(die);
+                return [die, i];
+            }
         }
         return false;
     }
-    move(letter, toCollection) {
-        const die = this.has(letter);
-        if (!die) throw "No die found, expected to find that letter.";
-        const i = this.dice.indexOf(die);
+    move(letter, toCollection, toEnd) {
+        if (!this.has(letter)) throw "No die found, expected to find that letter.";
+        const [die, i] = this.has(letter, toEnd);
         this.dice.splice(i, 1);
-        toCollection.dice.push(die);
-        toCollection.div.append(die); // TODO: Animate
+
+        if (toEnd) {
+            toCollection.dice.push(die);
+            toCollection.div.append(die); // TODO: Animate
+        } else {
+            toCollection.dice.unshift(die);
+            toCollection.div.prepend(die); // TODO: Animate
+        }
     }
-    moveAll(toCollection) {
+    moveAll(toCollection, toEnd) {
         while (this.dice.length > 0) {
-            this.move(this.dice[0].letter, toCollection);
+            this.move(this.dice[this.dice.length-1].letter, toCollection, toEnd);
         }
     }
     clear() {
@@ -147,15 +158,18 @@ class Game {
             this.reportProblem(`${word.length}-letter words are not allowed`);
             return false;
         }
-        if (this.words[word.length] >= MAX_WORDS) {
+        if (this.words[word.length].length >= MAX_WORDS) {
             this.reportProblem(`You have found as many ${word.length}-letter words as needed.`);
+            return false;
         }
         for (var existing of this.words[word.length]) {
             if (existing === word) {
                 this.reportProblem("You have already submitted that word.");
+                return false;
             }
             if (word + "s" == existing || word == existing + "s") {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
+                return false;
             }
         }
         // TODO: Check if word is in wordlist.txt
@@ -166,10 +180,12 @@ class Game {
         for (var i=0; i<this.spelled.dice.length; i++) word.push(this.spelled.dice[i].letter);
         word = word.join("");
 
-        this.spelled.moveAll(this.pool); // return all letters
+        this.spelled.moveAll(this.pool, 0); // return all letters to start
 
         if (this.validWord(word)) {
             this.words[word.length].push(word);
+            $(`.word-columns .word-column:nth-child(${word.length-2})`).append($(`<div class="word">${word}</div>`)).toggleClass("done", this.words[word.length].length == MAX_WORDS);
+            // If it has 5 children, highlight it in a special color
             this.updateScore();
         }
     }
@@ -198,7 +214,7 @@ class Game {
             this.trySpell();
         } else if (this.pool.has(letter)) {
             this.clearProblem();
-            this.pool.move(letter, this.spelled);
+            this.pool.move(letter, this.spelled, 1); // To the end
         } else {
             this.reportProblem(`No letter ${letter}`);
         }
@@ -224,8 +240,9 @@ $(document).ready((ev) => {
     game = new Game();
     $(".roll-dice").on("click", game.rollDice.bind(game));
 
-    document.addEventListener('keypress', (event) => {
-        var name = event.key;
-        game.letterPressed(event.key.toUpperCase());
+    document.addEventListener('keydown', (event) => {
+        var name = event.key.toUpperCase();
+        if (KEY_BLACKLIST.indexOf(name) >=0 ) return;
+        game.letterPressed(name);
     }, false);
 });
