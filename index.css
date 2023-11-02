@@ -7,11 +7,13 @@ body {
     white-space: pre-wrap;
 }
 
-.board {
+.top {
     border: 1px solid black;
     background: white;
     border-radius: 30px;
     padding: 0 30px;
+    display: flex;
+    flex-direction: row;
 }
 
 .dice {
@@ -59,7 +61,6 @@ body {
 }
 
 .spelling {
-    width: 80rem;
     height: 7rem;
     margin: 1rem;
 
@@ -98,19 +99,30 @@ body {
     background: lightblue
 }
 .roll-dice {
-    width: 80rem;
     height: 7rem;
     margin: 1rem;
     font-size: 24pt;
+}
 
+.board {
+    flex-grow: 1;
 }
 
 .score {
-    border: 1px solid black;
-    background: white;
     width: fit-content;
-    float: right;
     padding: 2em;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.board {
+    display: flex;
+    flex-direction: column;
+}
+.dice {
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-height: 14rem;
 }
 
 .word-columns {

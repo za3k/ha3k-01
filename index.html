@@ -9,7 +9,25 @@
 <body>
 
 <div class="top">
-
+    <div class="board">
+        <div class="timer">Time: <span class="time">--</span></div>
+        <div class="dice">
+            <div class="die">P</div>
+            <div class="die">E</div>
+            <div class="die">R</div>
+            <div class="die">Q</div>
+            <div class="die">U</div>
+            <div class="die">A</div>
+            <div class="die">C</div>
+            <div class="die">K</div>
+            <div class="die">E</div>
+            <div class="die">Y</div>
+        </div>
+        <div class="problem" style="display: none;"></div>
+        <div class="spelling" style="display: none;"></div>
+        <div class="victory" style="display: none;"></div>
+        <div class="button roll-dice">Roll Dice</div>
+    </div>
     <div class="score">
         <h3>Score</h3>
         <div class="word-columns">
@@ -35,43 +53,32 @@
         <div class="vulnerable-label" style="visibility:hidden;">VULNERABLE</div>
         <div>Round: <div class="round">--</div></div>
     </div>
-    <div class="board">
-        <div class="timer">Time: <span class="time">--</span></div>
-        <div class="dice">
-            <div class="die">P</div>
-            <div class="die">E</div>
-            <div class="die">R</div>
-            <div class="die">Q</div>
-            <div class="die">U</div>
-            <div class="die">A</div>
-            <div class="die">C</div>
-            <div class="die">K</div>
-            <div class="die">E</div>
-            <div class="die">Y</div>
-        </div>
-        <div class="problem" style="display: none;"></div>
-        <div class="spelling" style="display: none;"></div>
-        <div class="victory" style="display: none;"></div>
-        <div class="button roll-dice">Roll Dice</div>
-    </div>
 </div>
 
 <h3>How to play</h3>
-<h3>Click "Roll dice". Then type as many words as you can in the time limit, using the keyboard. You only need a maximum of 5 words of each length.</h3>
+<h3>Click "Roll dice". Then type as many words as you can in the time limit, using the keyboard. You only need 5 words maximum of each length.</h3>
 <div class="rules">
 <h3>Rules</h3>
-Perquackey is a game for 2 or more players. Open one copy of this tab for each player. Each player takes a turn, then the next player plays, and so on.
+Perquackey is a game for 2 or more players. Open one copy of this tab for each player. Each player takes a turn in order.
 
-You get 3 minutes to make words.
+On your turn, you have 3 minutes to make as many words as you can (up to 5 of each length).
 
 Words must be:
-    At least 3 letters
-    No proper nouns
-    For "s" plurals: you can use "dog" or "dogs", but not both.
+  - At least 3 letters
+  - No proper nouns (BOSTON, XEROX, HENRY)
+  - For S plurals: you can use DOG or DOGS, but not both
 
-After the round ends, you will receive a score based on how many words of each length you spelled.
+After the round ends, you will receive a score based on how many words of each length you spelled. Additionally, you get bonuses for finishing entire groups of 5 words:
+  +300 points for having all 3-letter and 4-letter words
+  +500 points for having all 4-letter and 5-letter words
+  +600 points for having all 5-letter and 6-letter words
+  +1200 points for having all 6-letter and 7-letter words
+  +1850 points for having all 7-letter and 8-letter words
 
-Once you reach 2000 points, you become "vulnerable". You can no longer form 3-letter words. Also, if you score under 500 in a round, you receive in penalty. But, you get three extra red dice each round.
+Once you reach 2000 points, you are "vulnerable".
+  - You can no longer form 3-letter words.
+  - If you score under 500 in a round, you receive in penalty (of -500 points).
+  - You get three extra red dice each round.
 
 The first player to 5000 points wins.
 
