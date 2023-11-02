@@ -91,7 +91,8 @@ body {
 
     background: pink;
     border: 2px solid red;
-    color: red;
+    color: darkred;
+    font-size: 24pt;
 }
 .button:hover {
     background: lightblue

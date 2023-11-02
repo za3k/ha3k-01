@@ -1,23 +1,6 @@
-// [x] Make the display look nice
-// [x] Allow rolling dice
-// [x] Allow typing words
-// [x] Allow submitting words
-// [x] Add a timer
-// [x] Add "next round" button after the previous round
-// [x] Add completed words to scoring area
-// [X] Allow cancelling words somehow (press enter?)
-// [x] Add a word list
-// [x] Allow pressing backspace
-// [x] Score words as you go
-// [x] Add a cumulative score
-
 // [ ] Animate dice movement
-
 // [ ] Add mouse/touchpad support
-
 // [ ] Add sound effects: word correct, word incorrect, all 5 words done, time out, time almost out, game start (dice rolling)
-// [ ] Visually indicate "complete" columns and that 3-letter words are forbidden when vulnerable
-// [ ] Fix plurals
 
 const DICE = [
     // Black dice
@@ -62,7 +45,7 @@ const SCORE_BONUS = [
     0, 0,
 ];
 
-const VULNERABLE = 1; //2000;
+const VULNERABLE = 2000;
 const VICTORY = 5000;
 
 KEY_BLACKLIST = ["META", "SHIFT", "CONTROL", "ALT", " ", "'", "ARROWUP", "ARROWDOWN", "ARROWLEFT", "ARROWRIGHT"];
@@ -183,13 +166,13 @@ class Game {
             }
         }
         for (var existing of this.words[word.length-1]) {
-            if (word === existing + "s") {
+            if (word === existing + "S") {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
                 return false;
             }
         }
         for (var existing of this.words[word.length+1]) {
-            if (word + "s" === existing) {
+            if (word + "S" === existing) {
                 this.reportProblem("You can't submit both a singular and +s plural of the same word.");
                 return false;
             }
@@ -250,7 +233,7 @@ class Game {
     }
     victory() {
         $(".roll-dice").hide();
-        $(".victory").show();
+        $(".victory").show().text(`You win! You scored ${this.gameScore} points in ${this.roundNumber} rounds`);
     } 
     letterPressed(letter) {
         var die;
