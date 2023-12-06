@@ -68,6 +68,13 @@ class DiceCollection {
         div.letter = letter;
         this.div.append(div);
         this.dice.push(div);
+
+        div.on("click", (event) => {
+            if ($(event.target).parent().hasClass("dice")) {
+                game.letterPressed(div.letter);
+            }
+        });
+
         return div;
     }
     has(letter, last) {
@@ -136,6 +143,7 @@ class Game {
         this.clearProblem();
         $(".roll-dice").hide();
         $(".spelling").show();
+        $(".spelling-buttons").show();
         $(".bonus").hide();
         $(".done").removeClass("done");
         $(".word").remove();
@@ -313,4 +321,11 @@ $(document).ready((ev) => {
         if (KEY_BLACKLIST.indexOf(name) >=0 ) return;
         game.letterPressed(name);
     }, false);
+
+    $(".spelling-ok").on("click", (event) => {
+        game.letterPressed("ENTER");
+    });
+    $(".spelling-undo").on("click", (event) => {
+        game.letterPressed("BACKSPACE");
+    });
 });
