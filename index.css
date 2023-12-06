@@ -1,3 +1,4 @@
+
 body {
     background: lightblue;
 }
@@ -14,6 +15,7 @@ body {
     padding: 0 30px;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .dice {
@@ -49,7 +51,7 @@ body {
 
     border-radius: 10%;
 
-    font-size: 8vh;
+    font-size: 4.5rem;
     font-family: sans;
 
     display: flex;
@@ -61,14 +63,20 @@ body {
 }
 
 .spelling {
-    height: 7rem;
+    min-height: 7rem;
+    height: fit-content;
     margin: 1rem;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 
     background: lightblue;
+}
+.spelling:empty:before {
+    content: "Type or click letters to spell words.";
+    color: grey;
 }
 
 .button {
@@ -110,7 +118,7 @@ body {
 
 .score {
     width: fit-content;
-    padding: 2em;
+    padding-left: 2em;
     flex-grow: 0;
     flex-shrink: 0;
 }
@@ -147,6 +155,13 @@ body {
 .word-column:nth-child(n+2) {
     border-left: 1px dotted lightgrey;
 }
+
+@media screen and (max-width: 800px) {
+    html { font-size: 62.5% }
+    .score { padding: 0; }
+    .word-column:nth-child(n+8) { display: none; }
+}
+
 .word-column {
     margin: 2px;
     height: 8em;
