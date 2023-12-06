@@ -23,7 +23,7 @@ const NUM_DICE = [10, 13]; // Non-vulnerable, vulnerable
 const MIN_LENGTH = [3, 4]; // Non-vulnerable, vulnerable
 const MAX_WORDS = 5; // Max of any one length
 const MAX_WORD_LENGTH = 10;
-const ROUND_TIME = 10; //180;
+const ROUND_TIME = 180;
 
 const SCORES = {
     3: [0, 60, 70, 80, 90, 100],
