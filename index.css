@@ -181,3 +181,12 @@ body {
 .round {
     display: inline-block;
 }
+
+.revealed {
+    opacity: 0;
+    font-weight: bold;
+    color: green;
+}
+.revealed:hover {
+    opacity: 1;
+}

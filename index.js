@@ -79,6 +79,12 @@ class DiceCollection {
         }
         return false;
     }
+    counts(letter) {
+        var count = {};
+        for (var letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") count[letter] = 0;
+        for (var die of this.dice) count[die.letter]++;
+        return count;
+    }
     move(letter, toCollection, fromEnd, toEnd) {
         if (!this.has(letter)) throw "No die found, expected to find that letter.";
         const [die, i] = this.has(letter, fromEnd);
@@ -155,15 +161,19 @@ class Game {
             this.reportProblem(`${word.length}-letter words are not allowed`);
             return false;
         }
-        if (this.words[word.length].length >= MAX_WORDS) {
-            this.reportProblem(`You have found as many ${word.length}-letter words as needed.`);
-            return false;
-        }
         for (var existing of this.words[word.length]) {
             if (existing === word) {
                 this.reportProblem("You have already submitted that word.");
                 return false;
             }
+        }
+        if (!dictionary[word]) {
+            this.reportProblem("That word was not found in our dictionary.");
+            return false;
+        }
+        if (this.words[word.length].length >= MAX_WORDS) {
+            this.reportProblem(`You have found as many ${word.length}-letter words as needed.`);
+            return false;
         }
         for (var existing of this.words[word.length-1]) {
             if (word === existing + "S") {
@@ -177,14 +187,13 @@ class Game {
                 return false;
             }
         }
-        if (!dictionary[word]) {
-            this.reportProblem("That word was not found in our dictionary.");
-            return false;
-        }
         return true;
     }
     returnLetters() {
         this.spelled.moveAll(this.pool, 1, 0); // return all letters to start
+    }
+    count(letter, word) {
+        return word.split(letter).length - 1;
     }
     trySpell(word) {
         var word = [];
@@ -253,10 +262,34 @@ class Game {
             this.reportProblem(`No letter ${letter}`);
         }
     }
+    usesLetters(word, counts) {
+        for (var letter of word) {
+            if (this.count(letter, word) > counts[letter]) return false;
+        }
+        return true;
+    }
+    revealAnswers() {
+        var letterCounts = this.pool.counts();
+
+        // Reveal any words they didn't get
+        for (var l=MIN_LENGTH[this.vulnerable]; l<=MAX_WORD_LENGTH; l++) {
+            var remaining = MAX_WORDS - this.words[l].length;
+            for (var word in dictionary) {
+                if (word.length != l) continue;
+                if (!this.usesLetters(word, letterCounts)) continue;
+                if (!this.validWord(word)) continue;
+                $(`.word-columns .word-column:nth-child(${word.length-2})`)
+                    .append($(`<div class="word revealed">${word}</div>`));
+                if (! --remaining) break;
+            }
+        }
+            
+    }
     roundOver() {
         window.clearInterval(this.updater); this.updater = null;
         this.clearProblem();
         this.returnLetters();
+        this.revealAnswers();
         $(".roll-dice").show();
         $(".spelling").hide();
         $(".time").text("--");
