@@ -1,5 +1,4 @@
 // [ ] Animate dice movement
-// [ ] Add mouse/touchpad support
 // [ ] Add sound effects: word correct, word incorrect, all 5 words done, time out, time almost out, game start (dice rolling)
 
 const DICE = [
@@ -300,6 +299,7 @@ class Game {
         this.revealAnswers();
         $(".roll-dice").show();
         $(".spelling").hide();
+        $(".spelling-buttons").show();
         $(".time").text("--");
         this.updateScore(1);
         this.active = 0;
