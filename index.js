@@ -249,6 +249,7 @@ class Game {
     }
     victory() {
         $(".roll-dice").hide();
+        $(".spelling-buttons").hide();
         $(".victory").show().text(`You win! You scored ${this.gameScore} points in ${this.roundNumber} rounds`);
     } 
     letterPressed(letter) {
@@ -299,7 +300,7 @@ class Game {
         this.revealAnswers();
         $(".roll-dice").show();
         $(".spelling").hide();
-        $(".spelling-buttons").show();
+        $(".spelling-buttons").hide();
         $(".time").text("--");
         this.updateScore(1);
         this.active = 0;
